@@ -80,10 +80,6 @@ class Create extends AbstractEndpoint
      */
     protected function getMethod()
     {
-        if (isset($this->body['mappings']) === true) {
-            return 'POST';
-        } else {
-            return 'PUT';
-        }
+        return 'PUT';
     }
 }
