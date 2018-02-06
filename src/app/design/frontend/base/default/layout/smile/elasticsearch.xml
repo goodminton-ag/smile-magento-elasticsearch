@@ -17,16 +17,6 @@
  -->
 <layout version="0.1.0">
 
-    <default>
-        <reference name="head">
-            <action method="addJs"><script>smile/elasticsearch/search.js</script></action>
-            <action method="addCss"><stylesheet>css/smile/elasticsearch.css</stylesheet></action>
-        </reference>
-        <reference name="top.search">
-            <action method="setTemplate"><template>smile/elasticsearch/autocomplete/form.mini.phtml</template></action>
-        </reference>
-    </default>
-
     <catalog_category_layered>
         <reference name="left">
             <remove name="catalog.leftnav"/>
