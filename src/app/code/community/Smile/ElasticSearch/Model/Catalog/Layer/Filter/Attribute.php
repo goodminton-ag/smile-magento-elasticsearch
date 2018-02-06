@@ -88,7 +88,7 @@ class Smile_ElasticSearch_Model_Catalog_Layer_Filter_Attribute extends Mage_Cata
         }
 
         $options = $this->_addSuggestFacetFilter($options);
-        $query->addFacet($this->_requestVar, $facetType, $options);
+        $query->addAgg($this->_requestVar, $facetType, $options);
 
         return $this;
     }

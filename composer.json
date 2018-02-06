@@ -9,5 +9,8 @@
           "name": "Aurélien FOUCRET",
           "email": "aurelien.foucret@smile.fr"
         }
-    ]
+    ],
+    "require": {
+        "elasticsearch/elasticsearch": "2.3.2"
+    }
 }

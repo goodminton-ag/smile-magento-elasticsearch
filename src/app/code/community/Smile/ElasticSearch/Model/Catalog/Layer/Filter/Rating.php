@@ -34,7 +34,7 @@ class Smile_ElasticSearch_Model_Catalog_Layer_Filter_Rating extends Smile_Elasti
     {
         $query = $this->getLayer()->getProductCollection()->getSearchEngineQuery();
         $options = array('interval' => self::RATING_AGG_INTERVAL, 'field' => $this->_getFilterField());
-        $query->addFacet($this->_getFilterField(), 'histogram', $options);
+        $query->addAgg($this->_getFilterField(), 'histogram', $options);
 
         return $this;
     }

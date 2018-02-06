@@ -222,7 +222,7 @@ class Smile_ElasticSearch_Model_Resource_Catalog_Product_Collection extends Mage
 
         $ids = array();
         if (!empty($this->_facets)) {
-            $this->getSearchEngineQuery()->resetFacets();
+            $this->getSearchEngineQuery()->resetAggs();
         }
         $result = $this->getSearchEngineQuery()->search();
 
@@ -306,7 +306,7 @@ class Smile_ElasticSearch_Model_Resource_Catalog_Product_Collection extends Mage
 
             $searchQuery = clone $this->getSearchEngineQuery();
 
-            $searchQuery->resetFacets()
+            $searchQuery->resetAggs()
                 ->setQueryType(null);
 
             if ($this->getStoreId()) {
@@ -317,12 +317,12 @@ class Smile_ElasticSearch_Model_Resource_Catalog_Product_Collection extends Mage
                 ->getSize();
 
             $options = array('field' => 'attribute_set_id', 'size' => $facetMaxSize);
-            $searchQuery->addFacet('attribute_set_id', 'terms', $options);
+            $searchQuery->addAgg('attribute_set_id', 'terms', $options);
 
             $searchQuery->setPageParams(0, 0);
             $response = $searchQuery->search();
 
-            $this->_productCountBySetId = $response['facets']['attribute_set_id']->getItems();
+            $this->_productCountBySetId = $response['aggregations']['attribute_set_id']->getItems();
         }
 
         return $this->_productCountBySetId;

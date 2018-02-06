@@ -477,7 +477,6 @@ class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Index
                     'body'  => array(
                         'number_of_replicas'        => (int) $this->getConfig('number_of_replicas'),
                         "refresh_interval"          => self::DIFF_REINDEX_REFRESH_INTERVAL,
-                        "merge.policy.merge_factor" => self::DIFF_REINDEX_MERGE_FACTOR,
                     )
                 )
             );

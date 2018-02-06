@@ -52,11 +52,11 @@ abstract class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Abs
     protected $_filters = array();
 
     /**
-     * Facets applied to the query.
+     * Aggregation applied to the query.
      *
      * @var array
      */
-    protected $_facets = array();
+    protected $_aggs = array();
 
     /**
      * Pagination of the query.
@@ -91,23 +91,23 @@ abstract class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Abs
      *
      * @var array
      */
-    protected $_facetModelNames = array(
-       'terms'      => 'smile_elasticsearch/engine_elasticsearch_query_facet_terms',
-       'termsStats' => 'smile_elasticsearch/engine_elasticsearch_query_facet_termsStats',
-       'histogram'  => 'smile_elasticsearch/engine_elasticsearch_query_facet_histogram',
-       'queryGroup' => 'smile_elasticsearch/engine_elasticsearch_query_facet_queryGroup',
-    );
+    protected $_aggModelNames = [
+       'terms'      => 'smile_elasticsearch/engine_elasticsearch_query_agg_terms',
+       'termsStats' => 'smile_elasticsearch/engine_elasticsearch_query_agg_termsStats',
+       'histogram'  => 'smile_elasticsearch/engine_elasticsearch_query_agg_histogram',
+       'queryGroup' => 'smile_elasticsearch/engine_elasticsearch_query_agg_queryGroup',
+    ];
 
     /**
      * Available filter models
      *
      * @var array
      */
-    protected $_filterModelNames = array(
+    protected $_filterModelNames = [
         'terms' => 'smile_elasticsearch/engine_elasticsearch_query_filter_terms',
         'range' => 'smile_elasticsearch/engine_elasticsearch_query_filter_range',
         'query' => 'smile_elasticsearch/engine_elasticsearch_query_filter_queryString'
-    );
+    ];
 
     /**
      * Indicates if the result have been spellchecked
@@ -126,6 +126,7 @@ abstract class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Abs
     public function setType($type)
     {
         $this->_type = $type;
+
         return $this;
     }
 
@@ -140,6 +141,7 @@ abstract class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Abs
             $currentStore        = Mage::app()->getStore();
             $this->_languageCode = Mage::helper('smile_elasticsearch')->getLanguageCodeByStore($currentStore);
         }
+
         return $this->_languageCode;
     }
 
@@ -153,6 +155,7 @@ abstract class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Abs
     public function setLanguageCode($languageCode)
     {
         $this->_languageCode = $languageCode;
+
         return $this;
     }
 
@@ -170,6 +173,7 @@ abstract class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Abs
     public function setQueryType($type)
     {
         $this->_queryType = $type;
+
         return $this;
     }
 
@@ -200,15 +204,15 @@ abstract class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Abs
      */
     public function search()
     {
-        $result = array();
+        $result = [];
 
         Varien_Profiler::start('ES:ASSEMBLE:QUERY');
         $query = $this->_assembleQuery();
         Varien_Profiler::stop('ES:ASSEMBLE:QUERY');
 
-        $eventData = new Varien_Object(array('query' => $query, 'query_type' => $this->getQueryType()));
+        $eventData = new Varien_Object(['query' => $query, 'query_type' => $this->getQueryType()]);
         Varien_Profiler::start('ES:ASSEMBLE:QUERY:OBSERVERS');
-        Mage::dispatchEvent('smile_elasticsearch_query_assembled', array('query_data' => $eventData));
+        Mage::dispatchEvent('smile_elasticsearch_query_assembled', ['query_data' => $eventData]);
         Varien_Profiler::stop('ES:ASSEMBLE:QUERY:OBSERVERS');
         $query = $eventData->getQuery();
         if ($this->getConfig('enable_debug_mode')) {
@@ -220,12 +224,12 @@ abstract class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Abs
         Varien_Profiler::stop('ES:EXECUTE:QUERY');
 
         if (!isset($response['error'])) {
-            $result = array(
+            $result = [
                 'total_count'  => $response['hits']['total'],
-                'faceted_data' => array(),
-                'docs'         => array(),
-                'ids'          => array()
-            );
+                'faceted_data' => [],
+                'docs'         => [],
+                'ids'          => []
+            ];
 
             foreach ($response['hits']['hits'] as $doc) {
 
@@ -233,17 +237,27 @@ abstract class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Abs
                 $result['ids'][] = (int) current($doc['fields']['entity_id']);
             }
 
-            if (isset($response['facets'])) {
-                foreach ($this->_facets as $facetName => $facetModel) {
-                    $currentFacet = clone $facetModel;
-                    if ($facetModel->isGroup()) {
-                        $currentFacet->setResponse($response['facets']);
-                        $result['faceted_data'][$facetName] = $facetModel->getItems($response['facets']);
-                    } else if (isset($response['facets'][$facetName])) {
-                        $currentFacet->setResponse($response['facets'][$facetName]);
-                        $result['faceted_data'][$facetName] = $facetModel->getItems($response['facets'][$facetName]);
+            if (isset($response['aggregations'])) {
+                foreach ($this->_aggs as $aggName => $aggModel) {
+                    $currentAgg = clone $aggModel;
+
+                    foreach ($this->_filters as $filterAggName => $filters) {
+
+                        $aggregationResponse = $response['aggregations'];
+
+                        if ($filterAggName != $aggName && $filterAggName != '_none_') {
+                            $aggregationResponse = $aggregationResponse[$filterAggName];
+                        }
+
+                        if ($aggModel->isGroup()) {
+                            $currentAgg->setResponse($aggregationResponse);
+                            $result['faceted_data'][$aggName] = $aggModel->getItems($aggregationResponse);
+                        } else if (isset($aggregationResponse[$aggName])) {
+                            $currentAgg->setResponse($aggregationResponse[$aggName]);
+                            $result['faceted_data'][$aggName] = $aggModel->getItems($aggregationResponse[$aggName]);
+                        }
+                        $result['aggregations'][$aggName] = $currentAgg;
                     }
-                    $result['facets'][$facetName] = $currentFacet;
                 }
             }
         } else {
@@ -389,61 +403,76 @@ abstract class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Abs
      */
     protected function _assembleQuery()
     {
-        $query = array('index' => $this->getAdapter()->getCurrentIndex()->getCurrentName(), 'type' => $this->getType());
+        $query = ['index' => $this->getAdapter()->getCurrentIndex()->getCurrentName(), 'type' => $this->getType()];
         $query['body']['query']['filtered']['query']['bool']['must'][] = $this->_prepareFulltextCondition();
 
-        foreach ($this->_facets as $facetName => $facet) {
+        foreach ($this->_aggs as $aggName => $agg) {
 
-            $facets = $facet->getFacetQuery();
+            $aggs = $agg->getAggQuery();
 
-            if (!$facet->isGroup()) {
-                $facets = array($facetName => $facets);
+            if (!$agg->isGroup()) {
+                $aggs = [$aggName => $aggs];
             }
 
-            foreach ($facets as $realFacetName => $facet) {
-                foreach ($this->_filters as $filterFacetName => $filters) {
-                    $rawFilter = array();
+            foreach ($aggs as $realAggName => $agg) {
+                $aggsFiltered = false;
+                foreach ($this->_filters as $filterAggName => $filters) {
+                    $rawFilter = [];
 
                     foreach ($filters as $filter) {
                         $rawFilter[] = $filter->getFilterQuery();
                     }
 
-                    if ($filterFacetName != $facetName && $filterFacetName != '_none_') {
+                    if ($filterAggName != $aggName && $filterAggName != '_none_') {
+                        $aggsFiltered = true;
                         $mustConditions = $rawFilter;
-                        if (isset($facet['facet_filter']['bool']['must'])) {
-                            $mustConditions = array_merge($facet['facet_filter']['bool']['must'], $rawFilter);
+                        if (isset($query['body']['aggs'][$filterAggName]['bool']['must'])) {
+                            $mustConditions = array_merge(
+                                $query['body']['aggs'][$filterAggName]['bool']['must'],
+                                $rawFilter
+                            );
                         }
-                        $facet['facet_filter']['bool']['must'] = $mustConditions;
+                        $query['body']['aggs'][$filterAggName]['filter']['bool']['must'] = $mustConditions;
+                        $query['body']['aggs'][$filterAggName]['aggs'][$realAggName] = $agg;
                     }
                 }
-                $query['body']['facets'][$realFacetName] = $facet;
+
+                if (!$aggsFiltered) {
+                    $query['body']['aggs'][$realAggName] = $agg;
+                }
             }
         }
 
-        foreach ($this->_filters as $facetName => $filters) {
-            $rawFilter = array();
+        foreach ($this->_filters as $aggName => $filters) {
+            $rawFilter = [];
             foreach ($filters as $filter) {
                 $rawFilter[] = $filter->getFilterQuery();
             }
-            if ($facetName == '_none_') {
+            if ($aggName == '_none_') {
                 if (!isset($query['body']['query']['filtered']['filter']['bool']['must'])) {
-                    $query['body']['query']['filtered']['filter']['bool']['must'] = array();
+                    $query['body']['query']['filtered']['filter']['bool']['must'] = [];
                     $query['body']['query']['filtered']['filter']['bool']['_cache'] = true;
                 }
-                $mustConditions = array_merge($query['body']['query']['filtered']['filter']['bool']['must'], $rawFilter);
+                $mustConditions = array_merge(
+                    $query['body']['query']['filtered']['filter']['bool']['must'],
+                    $rawFilter
+                );
                 $query['body']['query']['filtered']['filter']['bool']['must'] = $mustConditions;
             } else {
                 if (!isset($query['body']['filter']['bool']['must'])) {
-                    $query['body']['filter']['bool']['must'] = array();
+                    $query['body']['filter']['bool']['must'] = [];
                 }
-                $query['body']['filter']['bool']['must'] = array_merge($query['body']['filter']['bool']['must'], $rawFilter);
+                $query['body']['filter']['bool']['must'] = array_merge(
+                    $query['body']['filter']['bool']['must'],
+                    $rawFilter
+                );
             }
         }
         // Patch : score not computed when using another sort order than score
         //         as primary sort order
 
         if (isset($this->_page['size']) && $this->_page['size'] > 0) {
-            $query['body']['fields'] = array('entity_id');
+            $query['body']['fields'] = ['entity_id'];
             $query['body']['track_scores'] = true;
             $query['body']['sort'] = $this->_prepareSortCondition();
             $query['body'] = array_merge($query['body'], $this->_page);
@@ -593,23 +622,23 @@ abstract class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Abs
     }
 
     /**
-     * Add a facet to the query.
+     * Add an agg to the query.
      *
-     * @param string $name      Name of the facet.
-     * @param string $modelName Name of the model to be used to create the facet.
+     * @param string $name      Name of the agg.
+     * @param string $modelName Name of the model to be used to create the agg.
      * @param array  $options   Options to be passed to the facet constructor.
      *
      * @return Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Abstract
      */
-    public function addFacet($name, $modelName, $options = array())
+    public function addAgg($name, $modelName, $options = array())
     {
-        $modelName = $this->_getFacetModelName($modelName);
+        $modelName = $this->_getAggModelName($modelName);
 
         $facet = Mage::getResourceModel($modelName, $options);
 
         if ($facet) {
             $facet->setQuery($this);
-            $this->_facets[$name] = $facet;
+            $this->_aggs[$name] = $facet;
         }
 
         return $this;
@@ -617,7 +646,7 @@ abstract class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Abs
 
     /**
      * Try to convert the model name from short name (eg."terms")
-     * to the model name (eg. "smile_elasticsearch/engine_elasticsearch_query_facet_terms").
+     * to the model name (eg. "smile_elasticsearch/engine_elasticsearch_query_agg_terms").
      *
      * If no match is found, return the model name unchanged.
      *
@@ -625,11 +654,12 @@ abstract class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Abs
      *
      * @return string
      */
-    protected function _getFacetModelName($modelName)
+    protected function _getAggModelName($modelName)
     {
-        if (isset($this->_facetModelNames[$modelName])) {
-            $modelName = $this->_facetModelNames[$modelName];
+        if (isset($this->_aggModelNames[$modelName])) {
+            $modelName = $this->_aggModelNames[$modelName];
         }
+
         return $modelName;
     }
 
@@ -648,6 +678,7 @@ abstract class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Abs
         if (isset($this->_filterModelNames[$modelName])) {
             $modelName = $this->_filterModelNames[$modelName];
         }
+
         return $modelName;
     }
 
@@ -663,13 +694,14 @@ abstract class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Abs
     }
 
     /**
-     * Allow to reset the facet for a query.
+     * Allow to reset the aggs for a query.
      *
      * @return Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Abstract
      */
-    public function resetFacets()
+    public function resetAggs()
     {
-        $this->_facets = array();
+        $this->_aggs = [];
+
         return $this;
     }
 }

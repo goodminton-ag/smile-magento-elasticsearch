@@ -37,7 +37,7 @@ class Smile_ElasticSearch_Model_Catalog_Layer_Filter_Decimal extends Smile_Elast
     {
         $query = $this->getLayer()->getProductCollection()->getSearchEngineQuery();
         $options = array('interval' => 1, 'field' => $this->_getFilterField());
-        $query->addFacet($this->_getFilterField(), 'histogram', $options);
+        $query->addAgg($this->_getFilterField(), 'histogram', $options);
 
         return $this;
     }

@@ -58,7 +58,7 @@ class Smile_ElasticSearch_Model_Catalog_Layer_Filter_Category extends Mage_Catal
         if (!$this->getProductCollectionFacetSet()) {
             $query = $this->getLayer()->getProductCollection()->getSearchEngineQuery();
             $options = array('script_field' => 'doc.categories.values + doc.show_in_categories.values');
-            $query->addFacet('categories', 'terms', $options);
+            $query->addAgg('categories', 'terms', $options);
         }
 
         return $this;

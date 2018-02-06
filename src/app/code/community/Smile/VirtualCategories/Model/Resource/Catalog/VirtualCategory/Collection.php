@@ -61,7 +61,7 @@ class Smile_VirtualCategories_Model_Resource_Catalog_VirtualCategory_Collection 
             }
 
             $options = array('queries' => $queries, 'prefix' => 'categories_');
-            $query->addFacet('categories', 'queryGroup', $options);
+            $query->addAgg('categories', 'queryGroup', $options);
 
             $response = $query->search();
 

@@ -52,7 +52,7 @@ class Smile_ElasticSearch_Block_Catalogsearch_Autocomplete_Suggest_Product_Attri
                 $facetOptions = array(
                     'key_field' => $fieldName, 'value_script' => '_score', 'order' => 'total', 'size' => $this->getMaxSize()
                 );
-                $query->addFacet($attribute, 'termsStats', $facetOptions);
+                $query->addAgg($attribute, 'termsStats', $facetOptions);
             }
         }
 
