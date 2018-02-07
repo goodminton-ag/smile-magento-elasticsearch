@@ -18,34 +18,10 @@
 <config>
     <modules>
 
-        <Enterprise_Search>
-            <active>false</active>
-            <codePool>core</codePool>
-            <depends>
-                <Mage_CatalogSearch/>
-            </depends>
-        </Enterprise_Search>
-
-        <OnTap_Merchandiser>
-            <active>false</active>
-            <codePool>core</codePool>
-            <depends>
-                <Mage_CatalogSearch/>
-            </depends>
-        </OnTap_Merchandiser>
-
         <Smile_SearchandisingSuite>
             <active>true</active>
             <codePool>community</codePool>
         </Smile_SearchandisingSuite>
-        
-        <Smile_Tracker>
-            <active>true</active>
-            <codePool>community</codePool>
-            <depends>
-                <Smile_SearchandisingSuite />
-            </depends>
-        </Smile_Tracker>
         
         <Smile_ElasticSearch>
             <active>true</active>

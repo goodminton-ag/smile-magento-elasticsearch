@@ -502,6 +502,7 @@
         </elasticsearch_advanced_search_settings>
 
        <index_management>
+           <sort_order>1600</sort_order>
            <groups>
                <index_options>
                    <fields>
