@@ -87,7 +87,7 @@ class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Agg_QueryGro
         foreach ($response as $facetName => $facet) {
             if (strpos($facetName, $prefix) === 0) {
                 $key = str_replace($prefix, '', $facetName);
-                $result[$key] = $facet['count'];
+                $result[$key] = $facet['doc_count'];
             }
         }
         return $result;

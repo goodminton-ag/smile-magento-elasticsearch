@@ -55,7 +55,7 @@ class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Agg_Terms
 
         if (isset($response['terms'])) {
             foreach ($response['terms'] as $value) {
-                $result[$value['term']] = $value['count'];
+                $result[$value['term']] = $value['doc_count'];
             }
         }
         return $result;

@@ -55,7 +55,7 @@ class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Agg_Histogra
 
         if (isset($response['entries'])) {
             foreach ($response['entries'] as $value) {
-                $result[$value['key']] = $value['count'];
+                $result[$value['key']] = $value['doc_count'];
             }
         }
         return $result;
