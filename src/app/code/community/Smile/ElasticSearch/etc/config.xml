@@ -219,14 +219,6 @@
             </modules>
         </translate>
         <events>
-            <controller_action_predispatch_catalog_category_view>
-                <observers>
-                    <smile_elasticsearch>
-                        <class>smile_elasticsearch/observer</class>
-                        <method>resetCurrentCatalogLayer</method>
-                    </smile_elasticsearch>
-                </observers>
-            </controller_action_predispatch_catalog_category_view>
 
             <controller_action_predispatch_catalogsearch_result_index>
                 <observers>

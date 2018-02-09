@@ -27,7 +27,7 @@
                         <children>
                             <config>
                                 <children>
-                                    <elasticsearch_advanced_search_settings translate="title" module="smile_searchandisingsuite">
+                                    <elasticsearch_advanced_search_settings translate="title" module="smile_elasticsearch">
                                         <title>Search advanced settings Section</title>
                                     </elasticsearch_advanced_search_settings>
                                 </children>

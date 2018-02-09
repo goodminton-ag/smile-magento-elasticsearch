@@ -17,9 +17,6 @@
  * @license   Apache License Version 2.0
  */
 
-// Include the Elasticsearch required libraries used by the adapter
-require_once 'vendor/autoload.php';
-
 /**
  * Elastic search engine.
  *

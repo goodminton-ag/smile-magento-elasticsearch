@@ -55,12 +55,6 @@ class Smile_ElasticSearch_Model_Catalog_Layer_Filter_Category extends Mage_Catal
 
         Mage::dispatchEvent('category_filter_add_facet_to_collection_before', array('filter' => $this, 'category' => $category));
 
-        if (!$this->getProductCollectionFacetSet()) {
-            $query = $this->getLayer()->getProductCollection()->getSearchEngineQuery();
-            $options = array('script_field' => 'doc.categories.values + doc.show_in_categories.values');
-            $query->addAgg('categories', 'terms', $options);
-        }
-
         return $this;
     }
 

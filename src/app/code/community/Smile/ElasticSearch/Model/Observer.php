@@ -59,22 +59,6 @@ class Smile_ElasticSearch_Model_Observer
     }
 
     /**
-     * Reset search engine if it is enabled for catalog navigation
-     *
-     * @param Varien_Event_Observer $observer Event data
-     *
-     * @return Smile_ElasticSearch_Model_Observer Self Reference
-     */
-    public function resetCurrentCatalogLayer(Varien_Event_Observer $observer)
-    {
-        if (Mage::helper('smile_elasticsearch')->isActiveEngine()) {
-            Mage::register('current_layer', Mage::getSingleton('smile_elasticsearch/catalog_layer'));
-        }
-
-        return $this;
-    }
-
-    /**
      * Reset search engine if it is enabled for search navigation
      *
      * @param Varien_Event_Observer $observer Event data
