@@ -201,13 +201,14 @@ class Smile_ElasticSearch_Model_Catalog_Layer_Filter_Attribute extends Mage_Cata
      *
      * @return array
      */
-    protected function _getFacet()
+    protected function _getAgg()
     {
         /** @var $productCollection Smile_ElasticSearch_Model_Resource_Catalog_Product_Collection */
         $productCollection = $this->getLayer()->getProductCollection();
         $fieldName = $this->_getFilterField();
-        $facet = $productCollection->getFacet($this->_requestVar);
-        return $facet;
+        $agg = $productCollection->getAgg($this->_requestVar);
+
+        return $agg;
     }
 
     /**
@@ -261,7 +262,7 @@ class Smile_ElasticSearch_Model_Catalog_Layer_Filter_Attribute extends Mage_Cata
         /** @var $attribute Mage_Catalog_Model_Resource_Eav_Attribute */
         $attribute = $this->getAttributeModel();
         $this->_requestVar = $attribute->getAttributeCode();
-        $items = $this->_getFacet()->getItems();
+        $items = $this->_getAgg()->getItems();
         $data = array();
         if (array_sum($items) > 0) {
 
@@ -392,6 +393,6 @@ class Smile_ElasticSearch_Model_Catalog_Layer_Filter_Attribute extends Mage_Cata
      */
     public function hasOthers()
     {
-        return $this->_getFacet()->hasOthers() && count($this->_getFacet()->getItems()) < $this->_getSuggestMaxSize();
+        return $this->_getAgg()->hasOthers() && count($this->_getAgg()->getItems()) < $this->_getSuggestMaxSize();
     }
 }

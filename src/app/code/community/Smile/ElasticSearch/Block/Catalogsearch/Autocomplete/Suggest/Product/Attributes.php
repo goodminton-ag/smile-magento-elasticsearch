@@ -90,7 +90,7 @@ class Smile_ElasticSearch_Block_Catalogsearch_Autocomplete_Suggest_Product_Attri
 
             foreach ($this->getAttributes() as $attributeCode) {
                 $attribute = $this->_attributesByCode[$attributeCode];
-                $facetData = $this->getProductCollection()->getFacet($attributeCode)->getResponse();
+                $facetData = $this->getProductCollection()->getAgg($attributeCode)->getResponse();
                 foreach ($facetData['terms'] as $termData) {
                     $suggestions[] = $this->_createSuggestion($attribute, $termData['term'], $termData['total']);
                 }

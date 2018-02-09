@@ -33,11 +33,11 @@ class Smile_ElasticSearch_Model_Resource_Catalog_Product_Collection extends Mage
     protected $_searchEngineQuery = null;
 
     /**
-     * Loaded facets.
+     * Loaded aggs.
      *
      * @var array
      */
-    protected $_facets = array();
+    protected $_aggs = array();
 
     /**
      * Search entity ids.
@@ -99,7 +99,7 @@ class Smile_ElasticSearch_Model_Resource_Catalog_Product_Collection extends Mage
             $this->getSize();
         }
 
-        $facet = $this->getFacet($field);
+        $facet = $this->getAgg($field);
 
         if ($facet) {
             $facetData = $facet->getItems();
@@ -115,7 +115,7 @@ class Smile_ElasticSearch_Model_Resource_Catalog_Product_Collection extends Mage
      *
      * @return NULL|Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Facet_Abstract
      */
-    public function getFacet($field)
+    public function getAgg($field)
     {
         $facet = null;
 
@@ -123,8 +123,8 @@ class Smile_ElasticSearch_Model_Resource_Catalog_Product_Collection extends Mage
             $this->getSize();
         }
 
-        if (array_key_exists($field, $this->_facets)) {
-            $facet = $this->_facets[$field];
+        if (array_key_exists($field, $this->_aggs)) {
+            $facet = $this->_aggs[$field];
         }
 
         return $facet;
@@ -151,8 +151,8 @@ class Smile_ElasticSearch_Model_Resource_Catalog_Product_Collection extends Mage
 
             $result = $query->search();
             $this->_totalRecords = isset($result['total_count']) ? $result['total_count'] : null;
-            if (isset($result['facets'])) {
-                $this->_facets = array_merge($this->_facets, $result['facets']);
+            if (isset($result['aggregations'])) {
+                $this->_aggs = array_merge($this->_aggs, $result['aggregations']);
             }
 
             $this->_isSpellChecked = $query->isSpellchecked();
@@ -221,14 +221,14 @@ class Smile_ElasticSearch_Model_Resource_Catalog_Product_Collection extends Mage
         $this->_prepareQuery();
 
         $ids = array();
-        if (!empty($this->_facets)) {
+        if (!empty($this->_aggs)) {
             $this->getSearchEngineQuery()->resetAggs();
         }
         $result = $this->getSearchEngineQuery()->search();
 
         $ids = isset($result['ids']) ? $result['ids'] : array();
-        if (isset($result['facets'])) {
-            $this->_facets = array_merge($this->_facets, $result['facets']);
+        if (isset($result['aggregations'])) {
+            $this->_aggs = array_merge($this->_aggs, $result['aggregations']);
         }
         $this->_totalRecords = isset($result['total_count']) ? $result['total_count'] : null;
         $this->_isSpellChecked = $this->getSearchEngineQuery()->isSpellchecked();

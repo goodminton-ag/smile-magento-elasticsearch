@@ -57,7 +57,7 @@ class Smile_ElasticSearch_Model_Catalog_Layer_Filter_Rating extends Smile_Elasti
         if ($data === null) {
 
             $data      = array();
-            $items    = array_reverse($this->_getFacet()->getItems(), true);
+            $items    = array_reverse($this->_getAgg()->getItems(), true);
             $sumCount  = 0;
 
             $maxValue = current(array_keys($items));
