@@ -65,6 +65,8 @@ abstract class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Mapping_A
      */
     protected $_type;
 
+    protected $_mapping;
+
     /**
      * Search fields.
      *
