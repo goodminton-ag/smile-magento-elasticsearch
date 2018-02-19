@@ -23,6 +23,7 @@
             <codePool>community</codePool>
             <depends>
                 <Mage_CatalogSearch />
+                <Mage_Cms/>
             </depends>
         </Smile_ElasticSearch>
 
