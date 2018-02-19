@@ -21,7 +21,7 @@
 <config>
     <modules>
         <Smile_ElasticSearch>
-            <version>1.3.0</version>
+            <version>1.4.0</version>
         </Smile_ElasticSearch>
     </modules>
     <global>
@@ -193,6 +193,16 @@
                     </add_products_position_into_search_terms>
                 </observers>
             </catalogsearch_query_save_after>
+
+            <adminhtml_cms_page_edit_tab_meta_prepare_form>
+                <observers>
+                    <smile_elasticsearch>
+                        <type>singleton</type>
+                        <class>smile_elasticsearch/observer_cms</class>
+                        <method>adminhtmlCmsPageEditTabMetaPrepareForm</method>
+                    </smile_elasticsearch>
+                </observers>
+            </adminhtml_cms_page_edit_tab_meta_prepare_form>
         </events>
         <translate>
             <modules>

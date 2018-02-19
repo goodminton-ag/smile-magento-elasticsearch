@@ -83,7 +83,10 @@ class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Mapping_Cms
             }
         }
 
-        $mapping['properties']['published_date'] = ['type' => 'date'];
+        $mapping['properties']['published_date'] = [
+            'type' => 'date', 'store' => false, 'format' => 'yyyy-MM-dd HH:mm:ss'
+        ];
+        $mapping['properties']['store_id'] = ['type' => 'integer', 'store' => false, 'index' => 'not_analyzed'];
         $mapping['properties']['unique'] = ['type' => 'string', 'store' => false, 'index' => 'not_analyzed'];
 
         return $mapping;
@@ -100,13 +103,16 @@ class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Mapping_Cms
     {
         $pages = Mage::getResourceModel('cms/page_collection')
             ->addStoreFilter($storeId)
-            ->addFieldToFilter('is_active', 1);
+            ->addFieldToFilter('is_active', 1)
+            ->addFieldToFilter('smile_is_searchable', 1);
 
         $languageCode = $this->_helper->getLanguageCodeByStore(Mage::app()->getStore($storeId));
         $docs = [];
 
         foreach ($pages as $page) {
             $data = $this->_getData($page, $languageCode);
+            $data['published_date'] = $page->getUpdateTime();
+            $data['store_id'] = $storeId;
             $data['unique'] = $page->getId() . '|' . $storeId;
             $docs[] = $data;
         }
