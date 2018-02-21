@@ -313,7 +313,7 @@ class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Fulltext
             $fuzzySearchFields = $this->_getFuzzySearchFields();
             $fuzzinessConfig = array(
                 'fields'           => $fuzzySearchFields,
-                'fuzziness'        => Mage::getStoreConfig(self::RELEVANCY_SETTINGS_BASE_PATH . 'fuzziness_value'),
+                'fuzziness'        => $this->_getFuzzinessValue(),
                 'prefix_length'    => Mage::getStoreConfig(self::RELEVANCY_SETTINGS_BASE_PATH . 'fuzziness_prefix_length'),
                 'max_expansions'   => Mage::getStoreConfig(self::RELEVANCY_SETTINGS_BASE_PATH . 'fuzziness_max_expansions'),
                 'cutoff_frequency' => $this->_getCutOffFrequency(),
@@ -354,7 +354,7 @@ class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Fulltext
             $phoneticConfig = array('analyzer' => $phoneticAnalyzer, 'fields' => $phoneticSearchFields);
             if ((bool) Mage::getStoreConfig($configPrexfix . 'enable_phonetic_search_fuzziness')) {
                 $fuzzinessConfig = array(
-                    'fuzziness'        => Mage::getStoreConfig($configPrexfix . 'phonetic_search_fuzziness_value'),
+                    'fuzziness'        => $this->_getFuzzinessValue(),
                     'prefix_length'    => Mage::getStoreConfig($configPrexfix . 'phonetic_search_fuzziness_prefix_length'),
                     'max_expansions'   => Mage::getStoreConfig($configPrexfix . 'phonetic_search_fuzziness_max_expansions'),
                     'cutoff_frequency' => $this->_getCutOffFrequency(),
@@ -364,6 +364,25 @@ class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Fulltext
         }
 
         return $phoneticConfig;
+    }
+
+    /**
+     * Get fuzziness value based on search term length
+     *
+     * @return int
+     */
+    protected function _getFuzzinessValue()
+    {
+        $termLength = strlen($this->_fulltextQuery);
+        if ($termLength <= 2) {
+            return 0;
+        }
+
+        if ($termLength >= 3 && $termLength <= 5) {
+            return 1;
+        }
+
+        return 2;
     }
 
     /**
