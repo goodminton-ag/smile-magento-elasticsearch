@@ -24,6 +24,7 @@
             <depends>
                 <Mage_CatalogSearch />
                 <Mage_Cms/>
+                <Enterprise_Cms/>
             </depends>
         </Smile_ElasticSearch>
 
