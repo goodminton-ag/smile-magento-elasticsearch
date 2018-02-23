@@ -21,7 +21,7 @@
 <config>
     <modules>
         <Smile_ElasticSearch>
-            <version>1.4.0</version>
+            <version>1.4.1</version>
         </Smile_ElasticSearch>
     </modules>
     <global>
@@ -44,6 +44,11 @@
                     <index_action_fulltext_refresh_changelog>Smile_ElasticSearch_Model_Index_Action_Fulltext_Refresh_Changelog</index_action_fulltext_refresh_changelog>
                 </rewrite>
             </enterprise_catalogsearch>
+            <enterprise_cms>
+                <rewrite>
+                    <config>Smile_ElasticSearch_Model_Enterprise_Cms_Config</config>
+                </rewrite>
+            </enterprise_cms>
         </models>
         <helpers>
             <smile_elasticsearch>
