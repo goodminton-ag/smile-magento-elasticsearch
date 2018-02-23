@@ -307,6 +307,9 @@
                             <filter>lowercase,ascii_folding,trim</filter>
                             <char_filter>html_strip</char_filter>
                         </sortable>
+                        <comma>
+                            <tokenizer>comma</tokenizer>
+                        </comma>
                     </analyzer>
                     <filter>
                         <trim>
@@ -355,6 +358,12 @@
                             <preserve_original>1</preserve_original>
                         </word_delimiter>
                     </filter>
+                    <tokenizer>
+                        <comma>
+                            <type>pattern</type>
+                            <pattern>,</pattern>
+                        </comma>
+                    </tokenizer>
                     <language_filters>
                         <french>elision_fr</french>
                     </language_filters>
