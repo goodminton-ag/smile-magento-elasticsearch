@@ -306,6 +306,12 @@ abstract class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Mapping_C
 
                     $entityData['store_id'] = $storeId;
                     $entityData[Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch::UNIQUE_KEY] = $entityData['entity_id'] . '|' . $storeId;
+
+                    $entityDataContainer = new Varien_Object(['entity_data' => $entityData]);
+                    Mage::dispatchEvent('smile_elasticsearch_set_entity_data', ['entity_data' => $entityDataContainer]);
+
+                    $entityData = $entityDataContainer->getData('entity_data');
+
                     $entityIndexes[$entityData['entity_id']] = $entityData;
                 }
 
