@@ -163,11 +163,11 @@ class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Fulltext
                 $this->_isSpellChecked = true;
             }
 
-            if (!isset(self::$_assembledQueries[$this->_fulltextQuery])) {
-                self::$_assembledQueries[$this->_fulltextQuery] = $this->_buildFulltextQuery($this->_fulltextQuery, $spellingType);
+            if (!isset(self::$_assembledQueries[$this->_type][$this->_fulltextQuery])) {
+                self::$_assembledQueries[$this->_type][$this->_fulltextQuery] = $this->_buildFulltextQuery($this->_fulltextQuery, $spellingType);
             }
 
-            $query = self::$_assembledQueries[$this->_fulltextQuery];
+            $query = self::$_assembledQueries[$this->_type][$this->_fulltextQuery];
         }
 
         return $query;
