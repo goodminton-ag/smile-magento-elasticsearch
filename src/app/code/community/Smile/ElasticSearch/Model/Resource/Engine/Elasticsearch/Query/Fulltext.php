@@ -512,6 +512,13 @@ class Smile_ElasticSearch_Model_Resource_Engine_Elasticsearch_Query_Fulltext
 
         $response = array();
 
+        if (!is_array($termVectorResponse)
+            || !isset($termVectorResponse['term_vectors'])
+            || !is_array($termVectorResponse['term_vectors'])
+        ) {
+            return $response;
+        }
+
         foreach ($termVectorResponse['term_vectors'] as $fieldName => $fieldData) {
 
             // Get the fieldname and the analyzer from the real fieldname (formatted as fieldname.analyzer)
